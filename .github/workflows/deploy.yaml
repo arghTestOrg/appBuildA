@@ -5,7 +5,7 @@ permissions:
   packages: write
   attestations: write
   id-token: write
-  
+
 on:
   workflow_dispatch:
 
@@ -50,7 +50,7 @@ jobs:
 
     - name: Get Terraform Outputs
       run: |
-        aws s3 cp s3://${{ secrets.AWS_BUCKET }}/terraform/state.json state.json
+        aws s3 cp s3://${{ secrets.AWS_BUCKET }}/terraform/state state.json
         CLUSTER_NAME=$(jq -r .eks_cluster_name.value state.json)
         CLUSTER_ENDPOINT=$(jq -r .eks_cluster_endpoint.value state.json)
 
