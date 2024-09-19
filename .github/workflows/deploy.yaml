@@ -23,11 +23,18 @@ jobs:
     - name: Log in to GitHub Container Registry
       run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
 
-    - name: Build Docker image
-      run: docker build -t ghcr.io/${{ github.repository_owner }}/crud:latest .
+      # Force lowercase on the Docker image tag
+    - name: Convert tag to lowercase
+      run: |
+            LOWERCASE_TAG=$(echo "ghcr.io/arghTestOrg/crud:latest" | tr '[:upper:]' '[:lower:]')
+            echo "LOWERCASE_TAG=$LOWERCASE_TAG" >> $GITHUB_ENV
 
+    - name: Build Docker image
+      run: docker build -t ${{ env.LOWERCASE_TAG }} .
+      
     - name: Push Docker image
-      run: docker push ghcr.io/${{ github.repository_owner }}/crud:latest
+      run: docker push ${{ env.LOWERCASE_TAG }}
+      
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
