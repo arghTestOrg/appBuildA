@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: springboot-crud-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: springboot-crud-app
+  template:
+    metadata:
+      labels:
+        app: springboot-crud-app
+    spec:
+      containers:
+      - name: springboot-crud-app
+        image: ghcr.io/<your-github-username>/crud:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SPRING_DATA_MONGODB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mongo-secret
+              key: username
+        - name: SPRING_DATA_MONGODB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongo-secret
+              key: password
