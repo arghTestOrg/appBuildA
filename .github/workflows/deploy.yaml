@@ -41,7 +41,12 @@ jobs:
     - name: Update kubeconfig for EKS with CA data
       run: > 
         aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --endpoint-url ${{ env.CLUSTER_ENDPOINT }} --region ${{ env.AWS_REGION }} 
-        --certificate-authority $(aws eks describe-cluster --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }} --query 'cluster.certificateAuthority.data' --output text)
+        --insecure-skip-tls-verify
+  # --certificate-authority 
+      
+    - name: Get the cert data 
+      run: echo "CERT_DATA=$(aws eks describe-cluster --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }} --query 'cluster.certificateAuthority.data' --output text)" >> GITHUB_ENV
+  
   
   # Update kubeconfig for EKS using the retrieved secrets
     - name: Update kubeconfig for EKS
