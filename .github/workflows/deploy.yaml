@@ -39,8 +39,8 @@ jobs:
     # Extract the EKS cluster name and endpoint from Terraform outputs
     - name: Extract Terraform outputs
       run: |
-        CLUSTER_NAME=$(terraform output -raw eks_cluster_name)
-        CLUSTER_ENDPOINT=$(terraform output -raw eks_cluster_endpoint)
+        CLUSTER_NAME=$(terraform state show terraform_remote_state.s3state.eks_cluster_name)
+        CLUSTER_ENDPOINT=$(terraform state show terraform_remote_state.s3state.eks_cluster_endpoint)
         echo $CLUSTER_ENDPOINT
   
     - name: Export name to github env    
