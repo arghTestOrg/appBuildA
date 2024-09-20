@@ -1,18 +1,17 @@
-name: Build and Deploy to EKS
-
+name: Build and Deploy App to EKS
 permissions:
   contents: read
   packages: write
   attestations: write
   id-token: write
-
+  
 on:
   workflow_dispatch:
 
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -26,39 +25,52 @@ jobs:
     - name: Build with Maven
       run: mvn clean package
 
-    - name: Log in to GitHub Container Registry
-      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
-
-      # Force lowercase on the Docker image tag
-    - name: Convert tag to lowercase
+    # Initialize Terraform with the S3 backend configuration
+    - name: Initialize Terraform
       run: |
-            LOWERCASE_TAG=$(echo "ghcr.io/arghTestOrg/crud:latest" | tr '[:upper:]' '[:lower:]')
-            echo "LOWERCASE_TAG=$LOWERCASE_TAG" >> $GITHUB_ENV
+        terraform init \
+          -backend-config="bucket=${{ secrets.AWS_BUCKET }}" \
+          -backend-config="key=terraform/state" \
+          -backend-config="region=${{ secrets.AWS_REGION }}"
 
-    - name: Build Docker image
-      run: docker build -t ${{ env.LOWERCASE_TAG }} .
-      
-    - name: Push Docker image
-      run: docker push ${{ env.LOWERCASE_TAG }}
-      
+    # Extract the EKS cluster name and endpoint from Terraform outputs
+    - name: Extract Terraform outputs
+      run: |
+        CLUSTER_NAME=$(terraform output -raw eks_cluster_name)
+        CLUSTER_ENDPOINT=$(terraform output -raw eks_cluster_endpoint)
+        echo "CLUSTER_NAME=$CLUSTER_NAME" >> $GITHUB_ENV
+        echo "CLUSTER_ENDPOINT=$CLUSTER_ENDPOINT" >> $GITHUB_ENV
 
+    #Configure AWS parameters
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
         role-to-assume: ${{ secrets.AWS_ROLE_ASSUMED }}
         aws-region: ${{ secrets.AWS_REGION }}
-
-    - name: Get Terraform Outputs
-      run: |
-        aws s3 cp s3://${{ secrets.AWS_BUCKET }}/terraform/state state.json
-        CLUSTER_NAME=$(jq -r .eks_cluster_name.value state.json)
-        CLUSTER_ENDPOINT=$(jq -r .eks_cluster_endpoint.value state.json)
-        echo $CLUSTER_ENDPOINT
-
+    
+    
+    # Configure the kubeconfig for EKS
     - name: Update kubeconfig for EKS
       run: |
-        aws eks update-kubeconfig --name $CLUSTER_NAME --endpoint-url $CLUSTER_ENDPOINT --region ${{ secrets.AWS_REGION }}
+        aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --endpoint-url ${{ env.CLUSTER_ENDPOINT }} --region ${{ secrets.AWS_REGION }}
 
+    # Log in to GitHub Container Registry
+    - name: Log in to GitHub Container Registry
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+
+    # Build Docker image with the tag in lowercase
+    - name: Build Docker image
+      run: |
+        LOWERCASE_TAG=$(echo "ghcr.io/${{ github.repository_owner }}/crud:latest" | tr '[:upper:]' '[:lower:]')
+        docker build -t $LOWERCASE_TAG .
+
+    # Push Docker image to GitHub Container Registry
+    - name: Push Docker image
+      run: |
+        LOWERCASE_TAG=$(echo "ghcr.io/${{ github.repository_owner }}/crud:latest" | tr '[:upper:]' '[:lower:]')
+        docker push $LOWERCASE_TAG
+
+    # Deploy the application to EKS using kubectl
     - name: Deploy to EKS
       run: |
         kubectl apply -f k8s/deployment.yaml
