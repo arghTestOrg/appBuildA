@@ -23,61 +23,43 @@ jobs:
         role-to-assume: ${{ secrets.AWS_ROLE_ASSUMED }}
         aws-region: ${{ secrets.AWS_REGION }}
     
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
-      with:
-        terraform_version: 1.9.5
-    
-    # Initialize Terraform with the S3 backend configuration
-    - name: Initialize Terraform
-      run: terraform init -lock=false
-    
-    # Terraform apply
-    - name: Terraform apply
-      run: terraform apply -auto-approve -lock=false
+  # Get Org Secrets for Cluster
+    - name: Retrieve EKS Cluster Secrets
+      run: |
+           echo "CLUSTER_NAME=${{ secrets.CLUSTER_NAME }}" >> $GITHUB_ENV
+           echo "CLUSTER_ENDPOINT=${{ secrets.CLUSTER_ENDPOINT }}" >> $GITHUB_ENV
+           echo "AWS_REGION"=${{ secrets.AWS_REGION }} >> $GITHUB_ENV
 
-    # Extract the EKS cluster name and endpoint from Terraform outputs
-    - name: Extract Terraform outputs
-      run: terraform state list
-    #  run: |
-    #    CLUSTER_NAME=$(terraform state show terraform_remote_state.s3state.eks_cluster_name)
-    #    CLUSTER_ENDPOINT=$(terraform state show terraform_remote_state.s3state.eks_cluster_endpoint)
-    #    echo $CLUSTER_ENDPOINT
-  
-    #- name: Export name to github env    
-    #  run: echo "CLUSTER_NAME=$CLUSTER_NAME" >> $GITHUB_ENV
-
-    #- name: Export endpoint to github env    
-    #  run: echo "CLUSTER_ENDPOINT=$CLUSTER_ENDPOINT" >> $GITHUB_ENV
-
-    - name: Set up JDK 21
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'temurin'
-        java-version: '21'
-
-    - name: Build with Maven
-      run: mvn clean package
-
-  #Configure AWS parameters
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-         aws-region: ${{ secrets.AWS_REGION }}
-    
   #Get Cluster CA data  
     - name: Update kubeconfig for EKS with CA data
       run: |
            aws eks update-kubeconfig \
-             --name prod_eks \
-             --region ${{ secrets.AWS_REGION }} \
-             --certificate-authority $(aws eks describe-cluster --name prod_eks --region ${{ secrets.AWS_REGION }} --query 'cluster.certificateAuthority.data' --output text)
-    
-    
-    # Configure the kubeconfig for EKS
+             --name ${{ env.CLUSTER_NAME }} \
+             --region ${{ env.AWS_REGION }} \
+             --certificate-authority $(aws eks describe-cluster --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }} --query 'cluster.certificateAuthority.data' --output text)
+  
+  # Update kubeconfig for EKS using the retrieved secrets
     - name: Update kubeconfig for EKS
-      run: aws eks update-kubeconfig --name prod_eks --endpoint-url https://4E0997EF1F0515687CEB329BD758C149.yl4.ap-southeast-1.eks.amazonaws.com --region ${{ secrets.AWS_REGION }}
-    # run: aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --endpoint-url ${{ env.CLUSTER_ENDPOINT }} --region ${{ secrets.AWS_REGION }}
+      run: |
+           aws eks update-kubeconfig \
+           --name ${{ env.CLUSTER_NAME }} \
+           --endpoint ${{ env.CLUSTER_ENDPOINT }} \
+           --region ${{ env.AWS_REGION }} \
+  
+    # Configure the kubeconfig for EKS
+    #- name: Update kubeconfig for EKS
+    #  run: aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --endpoint-url ${{ env.CLUSTER_ENDPOINT }} --region ${{ env.AWS_REGION }}
+    
+    # Setup Java
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+         distribution: 'temurin'
+         java-version: '21'
+    
+    # Maven build
+    - name: Build with Maven
+      run: mvn clean package
 
     # Log in to GitHub Container Registry
     - name: Log in to GitHub Container Registry
@@ -96,7 +78,9 @@ jobs:
         docker push $LOWERCASE_TAG
 
     # Deploy the application to EKS using kubectl
-    - name: Deploy to EKS
-      run: |
-        kubectl apply -f k8s/deployment.yaml
-        kubectl apply -f k8s/service.yaml
+    - name: App Deployment
+      run:  kubectl apply -f k8s/deployment.yaml
+      
+    # Deploy the LoadBalancer
+    - name: LB Deployment
+      run:  kubectl apply -f k8s/service.yaml
