@@ -27,11 +27,7 @@ jobs:
 
     # Initialize Terraform with the S3 backend configuration
     - name: Initialize Terraform
-      run: |
-        terraform init \
-          -backend-config="bucket=${{ secrets.AWS_BUCKET }}" \
-          -backend-config="key=terraform/state" \
-          -backend-config="region=${{ secrets.AWS_REGION }}"
+      run: terraform init -lock=false
 
     # Extract the EKS cluster name and endpoint from Terraform outputs
     - name: Extract Terraform outputs
