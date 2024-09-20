@@ -37,13 +37,13 @@ jobs:
       run: |
         CLUSTER_NAME=$(terraform output -raw eks_cluster_name)
         CLUSTER_ENDPOINT=$(terraform output -raw eks_cluster_endpoint)
+        echo $CLUSTER_ENDPOINT
+  
+    - name: Export name to github env    
+      run: echo "CLUSTER_NAME=$CLUSTER_NAME" >> $GITHUB_ENV
 
-    - name: Export variables to github env    
-      run: |
-          echo "CLUSTER_ENDPOINT=<<EOF" >> $GITHUB_ENV
-          echo "$CLUSTER_ENDPOINT" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
-          echo "CLUSTER_NAME=$CLUSTER_NAME" >> $GITHUB_ENV
+    - name: Export endpoint to github env    
+      run: echo "CLUSTER_ENDPOINT=$CLUSTER_ENDPOINT" >> $GITHUB_ENV
 
     - name: Set up JDK 21
       uses: actions/setup-java@v4
