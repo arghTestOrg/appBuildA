@@ -30,12 +30,9 @@ jobs:
            echo "CLUSTER_ENDPOINT=${{ secrets.CLUSTER_ENDPOINT }}" >> $GITHUB_ENV
            echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> $GITHUB_ENV
            
-  # Tshooting echoes
-    - name: Tshooting echoes
-      run: |
-           echo ${{ env.CLUSTER_NAME }}
-           echo "${{ env.CLUSTER_ENDPOINT }}"
-           echo "${{ env.AWS_REGION }}"
+  # Install certs
+    - name: Install certs
+      run: sudo apt-get install -y ca-certificates
 
   # Get Cluster CA data  
     - name: Update kubeconfig for EKS with CA data
@@ -44,12 +41,10 @@ jobs:
         --name ${{ env.CLUSTER_NAME }}
         --endpoint-url ${{ env.CLUSTER_ENDPOINT }}
         --region ${{ env.AWS_REGION }} 
-        --no-verify-ssl 
+  
         
-  # --certificate-authority 
-      
-    - name: Get the cert data 
-      run: echo "CERT_DATA=$(aws eks describe-cluster --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }} --query 'cluster.certificateAuthority.data' --output text)" >> GITHUB_ENV
+  #  - name: Get the cert data 
+  #    run: echo "CERT_DATA=$(aws eks describe-cluster --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }} --query 'cluster.certificateAuthority.data' --output text)" >> GITHUB_ENV
   
   
   # Update kubeconfig for EKS using the retrieved secrets
