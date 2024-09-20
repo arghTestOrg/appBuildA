@@ -34,24 +34,21 @@ jobs:
     - name: Tshooting echoes
       run: |
            echo ${{ env.CLUSTER_NAME }}
-           echo ${{ env.CLUSTER_ENDPOINT }}
-           echo ${{ env.AWS_REGION }}
+           echo "${{ env.CLUSTER_ENDPOINT }}"
+           echo "${{ env.AWS_REGION }}"
+
   # Get Cluster CA data  
     - name: Update kubeconfig for EKS with CA data
-      run: >
-           aws eks update-kubeconfig 
-            --name ${{ env.CLUSTER_NAME }} 
-            --endpoint-url ${{ env.CLUSTER_ENDPOINT }} 
-            --region ${{ env.AWS_REGION }} 
-            --certificate-authority $(aws eks describe-cluster --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }} --query 'cluster.certificateAuthority.data' --output text)
+      run: > 
+        aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --endpoint-url ${{ env.CLUSTER_ENDPOINT }} --region ${{ env.AWS_REGION }} 
+        --certificate-authority $(aws eks describe-cluster --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }} --query 'cluster.certificateAuthority.data' --output text)
   
   # Update kubeconfig for EKS using the retrieved secrets
     - name: Update kubeconfig for EKS
       run: >
-           aws eks update-kubeconfig 
-            --name ${{ env.CLUSTER_NAME }} 
-            --endpoint ${{ env.CLUSTER_ENDPOINT }} 
-            --region ${{ env.AWS_REGION }} 
+          aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} 
+          --endpoint ${{ env.CLUSTER_ENDPOINT }} 
+          --region ${{ env.AWS_REGION }} 
   
   # Setup Java
     - name: Set up JDK 21
