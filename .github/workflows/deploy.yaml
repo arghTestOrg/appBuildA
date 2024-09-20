@@ -38,16 +38,17 @@ jobs:
 
     # Extract the EKS cluster name and endpoint from Terraform outputs
     - name: Extract Terraform outputs
-      run: |
-        CLUSTER_NAME=$(terraform state show terraform_remote_state.s3state.eks_cluster_name)
-        CLUSTER_ENDPOINT=$(terraform state show terraform_remote_state.s3state.eks_cluster_endpoint)
-        echo $CLUSTER_ENDPOINT
+      run: terraform state list
+    #  run: |
+    #    CLUSTER_NAME=$(terraform state show terraform_remote_state.s3state.eks_cluster_name)
+    #    CLUSTER_ENDPOINT=$(terraform state show terraform_remote_state.s3state.eks_cluster_endpoint)
+    #    echo $CLUSTER_ENDPOINT
   
-    - name: Export name to github env    
-      run: echo "CLUSTER_NAME=$CLUSTER_NAME" >> $GITHUB_ENV
+    #- name: Export name to github env    
+    #  run: echo "CLUSTER_NAME=$CLUSTER_NAME" >> $GITHUB_ENV
 
-    - name: Export endpoint to github env    
-      run: echo "CLUSTER_ENDPOINT=$CLUSTER_ENDPOINT" >> $GITHUB_ENV
+    #- name: Export endpoint to github env    
+    #  run: echo "CLUSTER_ENDPOINT=$CLUSTER_ENDPOINT" >> $GITHUB_ENV
 
     - name: Set up JDK 21
       uses: actions/setup-java@v4
@@ -67,7 +68,8 @@ jobs:
     
     # Configure the kubeconfig for EKS
     - name: Update kubeconfig for EKS
-      run: aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --endpoint-url ${{ env.CLUSTER_ENDPOINT }} --region ${{ secrets.AWS_REGION }}
+      run: aws eks update-kubeconfig --name prod_eks --endpoint-url https://4E0997EF1F0515687CEB329BD758C149.yl4.ap-southeast-1.eks.amazonaws.com --region ${{ secrets.AWS_REGION }}
+    # run: aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --endpoint-url ${{ env.CLUSTER_ENDPOINT }} --region ${{ secrets.AWS_REGION }}
 
     # Log in to GitHub Container Registry
     - name: Log in to GitHub Container Registry
