@@ -31,6 +31,10 @@ jobs:
     # Initialize Terraform with the S3 backend configuration
     - name: Initialize Terraform
       run: terraform init -lock=false
+    
+    # Terraform apply
+    - name: Terraform apply
+      run: terraform apply -auto-approve -lock=false
 
     # Extract the EKS cluster name and endpoint from Terraform outputs
     - name: Extract Terraform outputs
