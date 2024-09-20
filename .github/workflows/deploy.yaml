@@ -39,9 +39,8 @@ jobs:
 
   # Get Cluster CA data  
     - name: Update kubeconfig for EKS with CA data
-      run: > 
-        aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --endpoint-url ${{ env.CLUSTER_ENDPOINT }} --region ${{ env.AWS_REGION }} 
-        --insecure-skip-tls-verify
+      run: aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --endpoint-url ${{ env.CLUSTER_ENDPOINT }} --region ${{ env.AWS_REGION }} 
+        
   # --certificate-authority 
       
     - name: Get the cert data 
