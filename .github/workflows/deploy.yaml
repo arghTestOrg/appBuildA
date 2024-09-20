@@ -65,6 +65,14 @@ jobs:
       with:
          aws-region: ${{ secrets.AWS_REGION }}
     
+  #Get Cluster CA data  
+    - name: Update kubeconfig for EKS with CA data
+      run: |
+           aws eks update-kubeconfig \
+             --name prod_eks \
+             --region ${{ secrets.AWS_REGION }} \
+             --certificate-authority $(aws eks describe-cluster --name prod_eks --region ${{ secrets.AWS_REGION }} --query 'cluster.certificateAuthority.data' --output text)
+    
     
     # Configure the kubeconfig for EKS
     - name: Update kubeconfig for EKS

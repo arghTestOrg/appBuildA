@@ -7,15 +7,18 @@ terraform {
       version = ">= 5.65"
     }
   }
-}
 
-data "terraform_remote_state" "s3state" {
-  backend = "s3"
-  config = {
+  backend "s3" {
     bucket = "oidc-tf-state-bucket"
     key    = "terraform/state"
     region = "ap-southeast-1"
-    encrypt = true 
+    encrypt = true
+  }
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 5.65"
+    }
   }
 }
-
