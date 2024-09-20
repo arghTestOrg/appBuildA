@@ -35,6 +35,7 @@ jobs:
       run: |
            aws eks update-kubeconfig \
              --name ${{ env.CLUSTER_NAME }} \
+             --endpoint-url ${{ env.CLUSTER_ENDPOINT }} \
              --region ${{ env.AWS_REGION }} \
              --certificate-authority $(aws eks describe-cluster --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }} --query 'cluster.certificateAuthority.data' --output text)
   
