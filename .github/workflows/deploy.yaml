@@ -38,8 +38,8 @@ jobs:
     - name: Get the cert data 
       run: >
          aws eks describe-cluster 
-          --name $EKS_CLUSTER_NAME 
-          --region $AWS_REGION 
+          --name ${{ env.CLUSTER_NAME }}
+          --region ${{ env.AWS_REGION }}
           --query 'cluster.certificateAuthority.data' 
           --output text | base64 --decode > ca.crt
   
