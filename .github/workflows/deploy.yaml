@@ -37,7 +37,10 @@ jobs:
       with:
         role-to-assume: ${{ secrets.AWS_ROLE_ASSUMED }}
         aws-region: ${{ secrets.AWS_REGION }}
-            
+  # Get aws cli version
+    - name: get aws cli ver
+      run:  aws --version | cut -d / -f2 | cut -d ' ' -f1
+
   # Get Org Secrets for Cluster
     - name: Retrieve EKS Cluster Secrets
       run: |
@@ -45,16 +48,23 @@ jobs:
            echo "CLUSTER_ENDPOINT=${{ secrets.CLUSTER_ENDPOINT }}" >> $GITHUB_ENV
            echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> $GITHUB_ENV
     
-          
-  # get cluster ca data      
-    - name: Get the cert data 
-      run: >
-         aws eks describe-cluster --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }} --query 'cluster.certificateAuthority.data' --output text | base64 --decode > ca.crt
+  # Get aws caller identity
   
+  # Just Describe cluster
+    - name: Just Describe CLuster 
+      run: aws eks describe-cluster --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
+
+  # Display kubeconfig
+    - name: Display kubeconfig
+      run:  cat ~/.kube/config
+
+  # get cluster ca data      
+    - name: Get Cert Data
+      run: aws eks describe-cluster --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }} --query 'cluster.certificateAuthority.data' --output text | base64 --decode > ca.crt
+           
   # update kubeconfig data  
     - name: Update kubeconfig for EKS with CA data
-      run: >
-         aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --endpoint-url ${{ env.CLUSTER_ENDPOINT }} --region ${{ env.AWS_REGION }} --ca-bundle ./ca.crt
+      run: aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --endpoint-url ${{ env.CLUSTER_ENDPOINT }} --region ${{ env.AWS_REGION }} --ca-bundle ./ca.crt
           
   # Setup Java
     - name: Set up JDK 21
