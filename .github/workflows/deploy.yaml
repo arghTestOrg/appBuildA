@@ -59,7 +59,8 @@ jobs:
            
   # update kubeconfig data  
     - name: Update kubeconfig for EKS with CA data
-      run: aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --endpoint-url ${{ env.CLUSTER_ENDPOINT }} --region ${{ env.AWS_REGION }} --ca-bundle ./ca.crt
+      run: aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
+  #   run: aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --endpoint-url ${{ env.CLUSTER_ENDPOINT }}  --ca-bundle ./ca.crt
           
   # Setup Java
     - name: Set up JDK 21
@@ -90,7 +91,7 @@ jobs:
 
   # Deploy the application to EKS using kubectl
     - name: App Deployment
-      run:  kubectl apply -f k8s/deployment.yaml
+      run:  kubectl apply -f k8s/deployment.yaml 
       
   # Deploy the LoadBalancer
     - name: LB Deployment
