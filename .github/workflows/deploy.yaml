@@ -54,13 +54,8 @@ jobs:
   # update kubeconfig data  
     - name: Update kubeconfig for EKS with CA data
       run: >
-         aws eks update-kubeconfig
-          --name prod_eks
-          --endpoint-url ${{ env.CLUSTER_ENDPOINT }}
-          --region ${{ env.AWS_REGION }} 
-          --ca-bundle ./ca.crt
-        
-  
+         aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --endpoint-url ${{ env.CLUSTER_ENDPOINT }} --region ${{ env.AWS_REGION }} --ca-bundle ./ca.crt
+          
   # Setup Java
     - name: Set up JDK 21
       uses: actions/setup-java@v4
