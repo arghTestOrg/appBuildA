@@ -37,9 +37,6 @@ jobs:
       with:
         role-to-assume: ${{ secrets.AWS_ROLE_ASSUMED }}
         aws-region: ${{ secrets.AWS_REGION }}
-  # Get aws cli version
-    - name: get aws cli ver
-      run:  aws --version | cut -d / -f2 | cut -d ' ' -f1
 
   # Get Org Secrets for Cluster
     - name: Retrieve EKS Cluster Secrets
@@ -49,14 +46,12 @@ jobs:
            echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> $GITHUB_ENV
     
   # Get aws caller identity
-  
-  # Just Describe cluster
-    - name: Just Describe CLuster 
-      run: aws eks describe-cluster --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
+    - name: Get caller identity
+      run: aws sts get-caller-identity
 
-  # Display kubeconfig
-    - name: Display kubeconfig
-      run:  cat ~/.kube/config
+  # Just Describe cluster
+    - name: Just Describe Cluster 
+      run: aws eks describe-cluster --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
 
   # get cluster ca data      
     - name: Get Cert Data
