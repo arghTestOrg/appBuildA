@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: springboot-crud-app
-        image: ghcr.io/<your-github-username>/crud:latest
+        image: ghcr.io/arghtestorg/crud:latest
         ports:
         - containerPort: 8080
         env:

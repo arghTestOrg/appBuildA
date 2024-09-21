@@ -80,14 +80,12 @@ jobs:
   # Build Docker image with the tag in lowercase
     - name: Build Docker image
       run: |
-        LOWERCASE_TAG=$(echo "ghcr.io/${{ github.repository_owner }}/crud:latest" | tr '[:upper:]' '[:lower:]')
+        LOWERCASE_TAG=$(echo "ghcr.io/arghTestOrg/crud:latest" | tr '[:upper:]' '[:lower:]')
         docker build -t $LOWERCASE_TAG .
 
   # Push Docker image to GitHub Container Registry
     - name: Push Docker image
-      run: |
-        LOWERCASE_TAG=$(echo "ghcr.io/${{ github.repository_owner }}/crud:latest" | tr '[:upper:]' '[:lower:]')
-        docker push $LOWERCASE_TAG
+      run: docker push $LOWERCASE_TAG
 
   # Deploy the application to EKS using kubectl
     - name: App Deployment
