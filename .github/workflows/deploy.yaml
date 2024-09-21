@@ -47,19 +47,19 @@ jobs:
 
              
   # get cluster ca data      
-  #  - name: Get the cert data 
-  #    run: >
-  #       aws eks describe-cluster --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }} --query 'cluster.certificateAuthority.data' --output text | base64 --decode > ca.crt
+    - name: Get the cert data 
+      run: >
+         aws eks describe-cluster --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }} --query 'cluster.certificateAuthority.data' --output text | base64 --decode > ca.crt
     
   # update kubeconfig data  
     - name: Update kubeconfig for EKS with CA data
       run: >
         aws eks update-kubeconfig
-        --name ${{ env.CLUSTER_NAME }}
-        --endpoint-url ${{ env.CLUSTER_ENDPOINT }}
-        --region ${{ env.AWS_REGION }} 
-        --role-arn arn:aws:iam::209479268294:role/GithubOIDCRole
-  #      --ca-bundle ./ca.crt
+         --name ${{ env.CLUSTER_NAME }}
+         --endpoint-url ${{ env.CLUSTER_ENDPOINT }}
+         --region ${{ env.AWS_REGION }} 
+         --ca-bundle ./ca.crt
+  #       --role-arn arn:aws:iam::209479268294:user/terraleaner
         
   
   # Setup Java
