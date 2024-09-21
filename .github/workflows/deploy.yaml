@@ -58,7 +58,7 @@ jobs:
         --endpoint-url ${{ env.CLUSTER_ENDPOINT }}
         --region ${{ env.AWS_REGION }} 
         --ca-bundle ./ca.crt
-        --roleARN arn:aws:iam::209479268294:role/GithubOIDCRole
+        --role-arn arn:aws:iam::209479268294:role/GithubOIDCRole
   
   # Setup Java
     - name: Set up JDK 21
