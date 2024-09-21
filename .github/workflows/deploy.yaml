@@ -54,12 +54,11 @@ jobs:
   # update kubeconfig data  
     - name: Update kubeconfig for EKS with CA data
       run: >
-        aws eks update-kubeconfig
-         --name ${{ env.CLUSTER_NAME }}
-         --endpoint-url ${{ env.CLUSTER_ENDPOINT }}
-         --region ${{ env.AWS_REGION }} 
-         --ca-bundle ./ca.crt
-  #       --role-arn arn:aws:iam::209479268294:user/terraleaner
+         aws eks update-kubeconfig
+          --name prod_eks
+          --endpoint-url ${{ env.CLUSTER_ENDPOINT }}
+          --region ${{ env.AWS_REGION }} 
+          --ca-bundle ./ca.crt
         
   
   # Setup Java
