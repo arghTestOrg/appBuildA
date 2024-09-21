@@ -84,7 +84,11 @@ jobs:
   # Push Docker image to GitHub Container Registry
     - name: Push Docker image
       run: docker push ghcr.io/arghtestorg/crud:latest
-
+  
+  # Logout of docker
+    - name: Logout of GHCR
+      run: docker logout ghcr.io
+      
   # Deploy the application to EKS using kubectl
     - name: App Deployment
       run:  kubectl apply -f k8s/deployment.yaml 
