@@ -46,12 +46,12 @@ jobs:
            echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> $GITHUB_ENV
     
   # Get aws caller identity
-    - name: Get caller identity
-      run: aws sts get-caller-identity
+  #  - name: Get caller identity
+  #    run: aws sts get-caller-identity
 
   # Just Describe cluster
-    - name: Just Describe Cluster 
-      run: aws eks describe-cluster --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
+  #  - name: Just Describe Cluster 
+  #    run: aws eks describe-cluster --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
 
   # get cluster ca data      
     - name: Get Cert Data
