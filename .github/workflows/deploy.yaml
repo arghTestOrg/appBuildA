@@ -95,7 +95,7 @@ jobs:
 
   # Deploy the application to EKS using kubectl
     - name: App Deployment
-      run:  kubectl rollout restart -f k8s/deployment.yaml 
+      run:  kubectl apply -f k8s/deployment.yaml 
       
   # Deploy the LoadBalancer
     - name: LB Deployment
