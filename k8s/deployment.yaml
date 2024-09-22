@@ -30,3 +30,4 @@ spec:
             secretKeyRef:
               name: mongo-secret
               key: password
+      serviceAccountName: techxeksadmin

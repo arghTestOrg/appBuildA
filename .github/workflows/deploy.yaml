@@ -88,7 +88,11 @@ jobs:
   # Logout of docker
     - name: Logout of GHCR
       run: docker logout ghcr.io
-      
+
+# Deploy the serviceAccount to EKS using kubectl
+    - name: SA Deployment
+      run:  kubectl apply -f k8s/serviceaccount.yaml
+
   # Deploy the application to EKS using kubectl
     - name: App Deployment
       run:  kubectl apply -f k8s/deployment.yaml 
