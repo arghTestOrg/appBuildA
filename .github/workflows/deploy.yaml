@@ -62,6 +62,10 @@ jobs:
       run: aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
   #   run: aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --endpoint-url ${{ env.CLUSTER_ENDPOINT }}  --ca-bundle ./ca.crt
           
+  # Deploy the serviceAccount to EKS using kubectl - do this early to give time to cluster
+    - name: SA Deployment
+      run:  kubectl apply -f k8s/serviceaccount.yaml
+  
   # Setup Java
     - name: Set up JDK 21
       uses: actions/setup-java@v4
@@ -89,13 +93,9 @@ jobs:
     - name: Logout of GHCR
       run: docker logout ghcr.io
 
-# Deploy the serviceAccount to EKS using kubectl
-    - name: SA Deployment
-      run:  kubectl apply -f k8s/serviceaccount.yaml
-
   # Deploy the application to EKS using kubectl
     - name: App Deployment
-      run:  kubectl apply -f k8s/deployment.yaml 
+      run:  kubectl rollout restart -f k8s/deployment.yaml 
       
   # Deploy the LoadBalancer
     - name: LB Deployment
