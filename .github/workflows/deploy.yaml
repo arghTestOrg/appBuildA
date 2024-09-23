@@ -53,17 +53,17 @@ jobs:
   #  - name: Just Describe Cluster 
   #    run: aws eks describe-cluster --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
 
-  # get cluster ca data      
-    - name: Get Cert Data
-      run: aws eks describe-cluster --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }} --query 'cluster.certificateAuthority.data' --output text | base64 --decode > ca.crt
+  # get cluster ca data (don't actually need it if you omit the endpoint url)      
+  #  - name: Get Cert Data
+  #    run: aws eks describe-cluster --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }} --query 'cluster.certificateAuthority.data' --output text | base64 --decode > ca.crt
            
   # update kubeconfig data  
-    - name: Update kubeconfig for EKS with CA data
+    - name: Update kubeconfig for EKS 
       run: aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
   #   run: aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --endpoint-url ${{ env.CLUSTER_ENDPOINT }}  --ca-bundle ./ca.crt
           
   # Deploy the serviceAccount to EKS using kubectl - do this early to give time to cluster
-    - name: SA Deployment
+    - name: ServiceAccount creation deployment
       run:  kubectl apply -f k8s/serviceaccount.yaml
   
   # Setup Java
