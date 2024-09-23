@@ -165,13 +165,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## Contact
 
-For any questions or issues, feel free to open an issue in the repository or contact:
-
-- **Name**: [Your Name]
-- **Email**: [your-email@example.com]
-- **GitHub**: [https://github.com/your-username](https://github.com/your-username)
 
 ---
 
